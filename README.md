@@ -18,8 +18,8 @@ This project provides the Terraform scripts to deploy a simple but full-blown Ca
 ## Installation
 
 1. On Google Cloud Console, from IAM & admin -> Service Accounts, 
-   create a service account for the Google Cloud project with a name like  
-   `terraform@<YOUR_PROJECT_ID>.iam.gserviceaccount.com`. 
+   create a service account for the Google Cloud project with a name like 
+   `terraform@<YOUR_PROJECT_ID>.iam.gserviceaccount.com`.  
    Assign this service account the `Compute Admin` role.
   
 2. Download the service account key JSON file, 
@@ -93,7 +93,7 @@ This project provides the Terraform scripts to deploy a simple but full-blown Ca
    admin
    admin123
    ```
-   After doing it, immediately go to settings and change your password.
+   After doing it, *immediately go to settings and change your password*.
 
 Congratulations, you have set up a secure Calibre Server.
 
