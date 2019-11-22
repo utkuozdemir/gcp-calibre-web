@@ -29,7 +29,7 @@ This project provides the Terraform scripts to deploy a simple but full-blown Ca
 
 4. Create a file called `my.tfvars` under the project root. 
    Fill in the file with all the variables below according to your needs:
-   ```hcl-terraform
+   ```hcl
    # put your email address, so you can get notified if 
    # your SSL certificate gets close to its expiration
    admin_email = "<YOUR_EMAIL@ADDRESS.COM>"
