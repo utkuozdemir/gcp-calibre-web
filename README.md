@@ -1,6 +1,6 @@
 # Calibre Server on Google Cloud
 
-Terraform scripts to deploy a full-blown Calibre Server to Google Cloud Platform.
+This project provides the Terraform scripts to deploy a simple but full-blown Calibre Server to Google Cloud Platform.
 
 ## Requirements
 
@@ -12,6 +12,9 @@ Terraform scripts to deploy a full-blown Calibre Server to Google Cloud Platform
   https://console.cloud.google.com  
   Take note of your project ID, you'll need it on the installation.
 
+- A SSH public/private key pair. Find out how to generate them. A description is the following:  
+  https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key
+
 ## Installation
 
 1. On Google Cloud Console, from IAM & admin -> Service Accounts, 
@@ -22,7 +25,9 @@ Terraform scripts to deploy a full-blown Calibre Server to Google Cloud Platform
 2. Download the service account key JSON file, 
    rename it to `serviceaccount.json` and drop it into this project's root.
 
-3. Create a file called `my.tfvars` under the project root. 
+3. Drop the public/private key to the `keys/` directory with the following names respectively: `id_rsa.pub` and `id_rsa`
+
+4. Create a file called `my.tfvars` under the project root. 
    Fill in the file with all the variables below according to your needs:
    ```hcl-terraform
    # put your email address, so you can get notified if 
@@ -63,7 +68,7 @@ Terraform scripts to deploy a full-blown Calibre Server to Google Cloud Platform
    # custom_domain_name = "myowndomain.example.com"
    ```
 
-4. Apply Terraform resources. In project root, run:  
+5. Apply Terraform resources. In project root, run:  
 
    ```shell script
    # terraform apply -var-file=my.tfvars
@@ -71,11 +76,11 @@ Terraform scripts to deploy a full-blown Calibre Server to Google Cloud Platform
    Observe the prompt, and if all looks fine, write `yes` and press enter.
    Wait for all the resources to be deployed.
 
-5. (Optional) If you provided your custom domain name using `custom_domain_name`, 
+6. (Optional) If you provided your custom domain name using `custom_domain_name`, 
    take the `public_ip` from the output, and add a DNS record 
    from your custom domain name to this IP address.
 
-6. Go to the `address` on the output on your web browser.
+7. Go to the `address` on the output on your web browser.
    You will be greeted by the initial setup screen of Calibre.  
    Leave all settings as-is, except:  
    * Set exactly `/books` as the Calibre library location.
@@ -83,7 +88,7 @@ Terraform scripts to deploy a full-blown Calibre Server to Google Cloud Platform
    Submit the settings.  
    (This is what is running on server: https://hub.docker.com/r/linuxserver/calibre-web/)
 
-7. Login to Calibre-Web with the following credentials:
+8. Login to Calibre-Web with the following credentials:
    ```
    admin
    admin123
@@ -91,3 +96,11 @@ Terraform scripts to deploy a full-blown Calibre Server to Google Cloud Platform
    After doing it, immediately go to settings and change your password.
 
 Congratulations, you have set up a secure Calibre Server.
+
+## Uninstallation
+
+1. In the project root, run:
+   ```shell script
+   # terraform destroy -var-file=my.tfvars
+   ```
+   Answer "yes" to the prompt to confirm deletion.
