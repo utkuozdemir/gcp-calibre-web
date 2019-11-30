@@ -113,7 +113,7 @@ resource "google_compute_instance" "calibre_server" {
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/files/startup-script.sh",
-      "sudo /tmp/files/startup-script.sh ${local.domain_name} ${var.admin_email} ${var.use_test_ssl_cert} ${var.dropbox_enabled} ${var.timezone}",
+      "sudo /tmp/files/startup-script.sh ${local.domain_name} ${var.admin_email} ${var.use_test_ssl_cert} ${var.timezone}",
       "sudo rm -rf /tmp/files/"
     ]
   }

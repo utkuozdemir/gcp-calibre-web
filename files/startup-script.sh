@@ -6,8 +6,7 @@ set -x
 DOMAIN_NAME=$1
 ADMIN_EMAIL=$2
 USE_TEST_CERT=$3
-DROPBOX_ENABLED=$4
-TIMEZONE=$5
+TIMEZONE=$4
 
 check_run_as_root() {
   if [[ $EUID -ne 0 ]]; then
@@ -77,19 +76,8 @@ prepare_user() {
 }
 
 start_containers() {
-  su ubuntu -c "mkdir -p /home/ubuntu/Dropbox/calibre-library"
+  su ubuntu -c "mkdir -p /home/ubuntu/books"
   docker-compose -f /home/ubuntu/docker-compose.yaml up -d
-}
-
-# taken from https://github.com/joeroback/dropbox
-enable_dropbox() {
-  cp -f /tmp/files/dropbox@.service /etc/systemd/system/dropbox@.service
-  su ubuntu -c "cd ~ && wget -O - \"https://www.dropbox.com/download?plat=lnx.x86_64\" | tar xzf -"
-  systemctl daemon-reload
-  systemctl enable dropbox@ubuntu
-  systemctl start dropbox@ubuntu
-  sleep 30
-  journalctl --no-pager -xu dropbox@ubuntu
 }
 
 check_run_as_root
@@ -100,7 +88,3 @@ configure_nginx_initial
 configure_certbot
 configure_nginx_final
 start_containers
-
-if [ "$DROPBOX_ENABLED" = true ]; then
-  enable_dropbox
-fi

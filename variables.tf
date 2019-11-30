@@ -39,11 +39,6 @@ variable "disk_size_in_gb" {
   type = number
 }
 
-variable "dropbox_enabled" {
-  type = bool
-  default = false
-}
-
 variable "use_xip_io_for_domain_name" {
   type = bool
 }
