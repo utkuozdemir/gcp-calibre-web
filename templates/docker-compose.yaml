@@ -1,5 +1,26 @@
 version: "3"
 services:
+  letsencrypt:
+    image: linuxserver/letsencrypt:amd64-1.0.0-ls79
+    container_name: letsencrypt
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${timezone}
+      - URL=${domain_name}
+      - VALIDATION=http
+      - EMAIL=${admin_email}
+      - DHLEVEL=1024
+      - ONLY_SUBDOMAINS=false
+      - STAGING=${use_test_cert}
+    volumes:
+      - /home/ubuntu/calibre-web-proxy.conf:/config/nginx/proxy_confs/calibre-web-proxy.conf
+    ports:
+      - 443:443
+      - 80:80 #optional
+    restart: unless-stopped
   calibre-web:
     image: linuxserver/calibre-web:0.6.4-ls40
     container_name: calibre-web

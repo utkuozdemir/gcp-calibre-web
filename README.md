@@ -43,15 +43,15 @@ This project provides the Terraform scripts to deploy a simple but full-blown Ca
    use_test_ssl_cert = false
    # the project ID on GCP that you noted down
    # as described in the requirements
-   gcp_project_id = my-project-id-123
+   gcp_project_id = "my-project-id-123"
    # the GCP zone to host the VM and the resources
    # should belong to the region above
    # see: https://cloud.google.com/compute/docs/regions-zones/
-   region = "europe-west3"
+   gcp_region = "europe-west3"
    # the GCP zone to host the VM and the resources
    # should belong to the region above
    # see: https://cloud.google.com/compute/docs/regions-zones/
-   zone = "europe-west3-b"
+   gcp_zone = "europe-west3-b"
    # how strong the machine should be.
    # more information here: https://cloud.google.com/compute/docs/machine-types
    # g1-small is the recommended minimum

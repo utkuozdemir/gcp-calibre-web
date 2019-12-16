@@ -47,3 +47,13 @@ variable "custom_domain_name" {
   type = string
   default = "calibre.invalid"
 }
+
+variable "ssh_private_key_file_location" {
+  type = string
+  default = "~/.ssh/id_rsa"
+}
+
+variable "ssh_public_key_file_location" {
+  type = string
+  default = "~/.ssh/id_rsa.pub"
+}

@@ -73,7 +73,7 @@ resource "google_compute_instance" "calibre_server" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${file("keys/id_rsa.pub")}"
+    ssh-keys = "ubuntu:${file(var.ssh_public_key_file_location)}"
   }
 
   connection {
@@ -81,40 +81,33 @@ resource "google_compute_instance" "calibre_server" {
     host = google_compute_address.calibre_server_public_ip.address
     user = "ubuntu"
     timeout = "500s"
-    private_key = file("keys/id_rsa")
+    private_key = file(var.ssh_private_key_file_location)
   }
 
   provisioner "file" {
-    source = "./files"
-    destination = "/tmp"
+    source = "./files/setup.sh"
+    destination = "/home/ubuntu/setup.sh"
+  }
+
+  provisioner "file" {
+    source = "./files/calibre-web-proxy.conf"
+    destination = "/home/ubuntu/calibre-web-proxy.conf"
   }
 
   provisioner "file" {
     content = templatefile("templates/docker-compose.yaml", {
       timezone = var.timezone
-    })
-    destination = "/tmp/files/docker-compose.yaml"
-  }
-
-  provisioner "file" {
-    content = templatefile("templates/calibre-web-proxy-initial.conf", {
       domain_name = local.domain_name
+      admin_email = var.admin_email
+      use_test_cert = var.use_test_ssl_cert
     })
-    destination = "/tmp/files/calibre-web-proxy-initial.conf"
-  }
-
-  provisioner "file" {
-    content = templatefile("templates/calibre-web-proxy-final.conf", {
-      domain_name = local.domain_name
-    })
-    destination = "/tmp/files/calibre-web-proxy-final.conf"
+    destination = "/home/ubuntu/docker-compose.yaml"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /tmp/files/startup-script.sh",
-      "sudo /tmp/files/startup-script.sh ${local.domain_name} ${var.admin_email} ${var.use_test_ssl_cert} ${var.timezone}",
-      "sudo rm -rf /tmp/files/"
+      "chmod +x /home/ubuntu/setup.sh",
+      "/home/ubuntu/setup.sh"
     ]
   }
 }
