@@ -47,6 +47,9 @@ resource "google_compute_instance" "calibre_server" {
     update = "30m"
   }
 
+  depends_on = [
+    google_compute_disk.calibre_server_disk
+  ]
   boot_disk {
     source = google_compute_disk.calibre_server_disk.name
   }
@@ -60,7 +63,7 @@ resource "google_compute_instance" "calibre_server" {
     network = "default"
 
     access_config {
-      nat_ip = google_compute_address.calibre_server_public_ip.address
+      nat_ip = var.ip_address
     }
   }
 
@@ -70,7 +73,7 @@ resource "google_compute_instance" "calibre_server" {
 
   connection {
     type = "ssh"
-    host = google_compute_address.calibre_server_public_ip.address
+    host = var.ip_address
     user = "ubuntu"
     timeout = "500s"
     private_key = file(var.ssh_private_key_file_location)
@@ -82,14 +85,14 @@ resource "google_compute_instance" "calibre_server" {
   }
 
   provisioner "file" {
-    source = "./files/calibre-web-proxy.conf"
-    destination = "/home/ubuntu/calibre-web-proxy.conf"
+    source = "./files/calibre-web.subfolder.conf"
+    destination = "/home/ubuntu/calibre-web.subfolder.conf"
   }
 
   provisioner "file" {
     content = templatefile("templates/docker-compose.yaml", {
       timezone = var.timezone
-      domain_name = local.domain_name
+      domain_name = var.domain_name
       admin_email = var.admin_email
       use_test_cert = var.use_test_ssl_cert
     })

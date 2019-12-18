@@ -41,7 +41,10 @@ variable "disk_size_in_gb" {
 
 variable "domain_name" {
   type = string
-  default = "calibre.invalid"
+}
+
+variable "ip_address" {
+  type = string
 }
 
 variable "ssh_private_key_file_location" {
@@ -52,14 +55,4 @@ variable "ssh_private_key_file_location" {
 variable "ssh_public_key_file_location" {
   type = string
   default = "~/.ssh/id_rsa.pub"
-}
-
-
-variable "terraform_backend_gcs_bucket" {
-  type = string
-}
-
-variable "terraform_backend_gcs_bucket_prefix" {
-  type = string
-  default = "gcp-calibre-web-terraform-state"
 }

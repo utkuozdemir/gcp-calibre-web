@@ -12,5 +12,4 @@ variable "gcp_zone" {
 
 variable "domain_name" {
   type = string
-  default = "calibre.invalid"
 }
