@@ -1,5 +1,5 @@
 /serviceaccount.json
-/my.tfvars
+my.tfvars
 
 
 # Created by https://www.gitignore.io/api/macos,terraform,jetbrains+all

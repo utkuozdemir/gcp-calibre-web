@@ -60,23 +60,22 @@ This project provides the Terraform scripts to deploy a simple but full-blown Ca
    backups_enabled = true
    # choose a disk size of your choice
    disk_size_in_gb = 32
-   # use https://xip.io to get a domain name
-   # (therefore an SSL certificate) for free
-   use_xip_io_for_domain_name = true
-   # only comment out and provide your own domain name if 
-   # use_xip_io_for_domain_name is set to false
-   # custom_domain_name = "myowndomain.example.com"
+   # domain name to use. you will need to add a dns record for that domain
+   domain_name = "myowndomain.example.com"
    ```
 
-5. Apply Terraform resources. In project root, run:  
+5. Apply the static IP address in Terraform resources. In project root, run:  
 
    ```shell script
-   # terraform apply -var-file=my.tfvars
+   # terraform apply -var-file=my.tfvars -target -target google_compute_address.calibre_server_public_ip
    ```
    Observe the prompt, and if all looks fine, write `yes` and press enter.
-   Wait for all the resources to be deployed.
+   Wait for the IP address resource to be deployed.
 
-6. (Optional) If you provided your custom domain name using `custom_domain_name`, 
+6. Observe the output, go and add the DNS address on your registrar as described.
+   Before proceeding, make sure that DNS record is added properly, and propagated.
+
+6. (Optional) If you provided your custom domain name using `domain_name`, 
    take the `public_ip` from the output, and add a DNS record 
    from your custom domain name to this IP address.
 

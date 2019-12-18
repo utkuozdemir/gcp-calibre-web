@@ -1,16 +1,8 @@
 provider "google" {
-  credentials = file("serviceaccount.json")
+  credentials = file("../serviceaccount.json")
   project = var.gcp_project_id
   region = var.gcp_region
   zone = var.gcp_zone
-}
-
-resource "google_compute_address" "calibre_server_public_ip" {
-  name = "calibre-server-public-ip"
-}
-
-locals {
-  domain_name = var.use_xip_io_for_domain_name ? "${google_compute_address.calibre_server_public_ip.address}.xip.io" : var.custom_domain_name
 }
 
 resource "google_compute_resource_policy" "calibre_server_disk_backup_schedule" {
@@ -108,6 +100,12 @@ resource "google_compute_instance" "calibre_server" {
     inline = [
       "chmod +x /home/ubuntu/setup.sh",
       "/home/ubuntu/setup.sh"
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "docker-compose -f /home/ubuntu/docker-compose.yaml up -d"
     ]
   }
 }
