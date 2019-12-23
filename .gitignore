@@ -1,6 +1,6 @@
 /serviceaccount.json
 my.tfvars
-
+backend.tf
 
 # Created by https://www.gitignore.io/api/macos,terraform,jetbrains+all
 # Edit at https://www.gitignore.io/?templates=macos,terraform,jetbrains+all
