@@ -12,10 +12,11 @@ This project provides the Terraform scripts to deploy a simple but full-blown Ca
   https://console.cloud.google.com  
   Take note of your project ID, you'll need it on the installation.
 
-- A SSH public/private key pair. Find out how to generate them. A description is the following:  
-  https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key
+- A SSH public/private key pair. Find out how to generate them. You can find a description [on this page](https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key).
 
 ## Installation
+
+### (Step 0): Preparing Terraform
 
 1. On Google Cloud Console, from IAM & admin -> Service Accounts, 
    create a service account for the Google Cloud project with a name like 
@@ -23,71 +24,111 @@ This project provides the Terraform scripts to deploy a simple but full-blown Ca
    Assign this service account the `Compute Admin` role.
   
 2. Download the service account key JSON file, 
-   rename it to `serviceaccount.json` and drop it into this project's root.
+   rename it to `serviceaccount.json` and drop it into this project's root directory.
 
-3. Drop the public/private key to the `keys/` directory with the following names respectively: `id_rsa.pub` and `id_rsa`
+### Step 1: Allocating the static IP address
 
-4. Create a file called `my.tfvars` under the project root. 
-   Fill in the file with all the variables below according to your needs:
-   ```hcl
-   # put your email address, so you can get notified if 
-   # your SSL certificate gets close to its expiration
-   admin_email = "<YOUR_EMAIL@ADDRESS.COM>"
-   # set the timezone. 
-   # See the tz database names here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-   timezone = "Europe/Berlin"
-   # if you are developing this project,
-   # you don't want to hit the API rate limits of Let's Encrypt.
-   # so, set this to true. If you want a valid SSL certificate, 
-   # leave this to be false
-   use_test_ssl_cert = false
-   # the project ID on GCP that you noted down
-   # as described in the requirements
+Inside the `static-ip-address` directory:
+
+1. Run the following command to initialize terraform:
+
+   ```shell script
+   terraform init
+   ```
+
+2. Create a file called `my.tfvars` and fill in the following variables according to your needs:
+   
+   - **`gcp_project_id`**: The project ID on GCP that you noted down as described in the requirements.
+   - **`gcp_region`**: The GCP region to allocate the IP address. 
+     See [this page](https://cloud.google.com/compute/docs/regions-zones/).
+   - **`domain_name`**: Domain name to use. You will need to add a dns record for that domain.
+   
+   Example `my.tfvars`: 
+   ```
    gcp_project_id = "my-project-id-123"
-   # the GCP zone to host the VM and the resources
-   # should belong to the region above
-   # see: https://cloud.google.com/compute/docs/regions-zones/
    gcp_region = "europe-west3"
-   # the GCP zone to host the VM and the resources
-   # should belong to the region above
-   # see: https://cloud.google.com/compute/docs/regions-zones/
    gcp_zone = "europe-west3-b"
-   # how strong the machine should be.
-   # more information here: https://cloud.google.com/compute/docs/machine-types
-   # g1-small is the recommended minimum
-   machine_type = "g1-small"
-   # enable daily scheduled backups for the last 14 days
-   backups_enabled = true
-   # choose a disk size of your choice
-   disk_size_in_gb = 32
-   # domain name to use. you will need to add a dns record for that domain
    domain_name = "myowndomain.example.com"
    ```
 
-5. Apply the static IP address in Terraform resources. In project root, run:  
+3. Apply the terraform resources by running the following command: 
 
    ```shell script
-   # terraform apply -var-file=my.tfvars -target -target google_compute_address.calibre_server_public_ip
+   terraform apply -var-file=my.tfvars
    ```
    Observe the prompt, and if all looks fine, write `yes` and press enter.
    Wait for the IP address resource to be deployed.
 
-6. Observe the output, go and add the DNS address on your registrar as described.
-   Before proceeding, make sure that DNS record is added properly, and propagated.
+### Step 2: Adding the allocated static IP address to the domain registrar
 
-6. (Optional) If you provided your custom domain name using `domain_name`, 
-   take the `public_ip` from the output, and add a DNS record 
-   from your custom domain name to this IP address.
+Observe the command line output from the previous step and apply. 
+The exact steps depend on your registrar.
 
-7. Go to the `address` on the output on your web browser.
+### Step 3: Creating the rest of the resources
+
+Inside the `server-resources` directory:
+
+1. Run the following command to initialize terraform:
+
+   ```shell script
+   terraform init
+   ```
+
+2. Create a file called `my.tfvars` and fill in the following variables according to your needs:
+   
+   - **`gcp_project_id`**: The project ID on GCP that you noted down as described in the requirements.
+   - **`gcp_region`n**: The GCP region to host the VM and the resources. **Should have the same value as Step 1.**
+     See: https://cloud.google.com/compute/docs/regions-zones/
+   - **`gcp_zone`**: The GCP zone to host the VM and the resources.  
+     Should belong to the region above.
+     See [this page](https://cloud.google.com/compute/docs/regions-zones/).
+   - **`domain_name`**: Domain name to use. **Should have the same value as Step 1.**
+   - **`admin_email`**: Put your email address, so you can get notified 
+     if your SSL certificate gets close to its expiration.
+   - **`timezone`**: Set the timezone. 
+     Should be one of the tz database names [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+   - **`use_test_ssl_cert`**: If you are developing this project, you don't want to hit 
+     the API rate limits of Let's Encrypt. So, set this to true. If you want a valid SSL certificate, 
+     leave this to be false.
+   - **`machine_type`**: How strong the machine should be.
+     More information [here](https://cloud.google.com/compute/docs/machine-types).  
+     `g1-small` is the recommended minimum for calibre-web.
+   - **`backups_enabled`**: Enable daily scheduled backups for the last 14 days.
+   - **`disk_size_in_gb`**: Choose a disk size.
+   
+   Example `my.tfvars`:
+      ```hcl
+      gcp_project_id = "my-project-id-123"  
+      gcp_region = "europe-west3"
+      gcp_zone = "europe-west3-b"
+      admin_email = "my-email-address@example.com"
+      timezone = "Europe/Berlin"
+      use_test_ssl_cert = false
+      machine_type = "g1-small"
+      backups_enabled = true
+      disk_size_in_gb = 32
+      domain_name = "my-domain-name.example.com"
+      ```
+
+3. Apply the terraform resources by running the following command: 
+
+   ```shell script
+   terraform apply -var-file=my.tfvars
+   ```
+   Observe the prompt, and if all looks fine, write `yes` and press enter.
+   Wait for the IP address resource to be deployed.
+
+### Step 4: Configuring Calibre-Web application
+
+1. Go to the address on the output from the previous step on your web browser.
    You will be greeted by the initial setup screen of Calibre.  
    Leave all settings as-is, except:  
    * Set exactly `/books` as the Calibre library location.
    * Enable uploads and other additional features as you wish.
    Submit the settings.  
-   (This is what is running on server: https://hub.docker.com/r/linuxserver/calibre-web/)
+   ([This](https://hub.docker.com/r/linuxserver/calibre-web) is what is running on server.)
 
-8. Login to Calibre-Web with the following credentials:
+2. Login to Calibre-Web with the following credentials:
    ```
    admin
    admin123
@@ -98,8 +139,18 @@ Congratulations, you have set up a secure Calibre Server.
 
 ## Uninstallation
 
-1. In the project root, run:
+1. In the `server-resources` directory, run:
    ```shell script
-   # terraform destroy -var-file=my.tfvars
+   terraform destroy -var-file=my.tfvars
    ```
    Answer "yes" to the prompt to confirm deletion.
+
+2. In the `static-ip-address` directory, run:
+   ```shell script
+   terraform destroy -var-file=my.tfvars
+   ```
+   Answer "yes" to the prompt to confirm deletion.
+
+3. Delete the DNS record for Calibre-Web from your registrar.
+
+4. Optionally, manually delete the disk snapshots that were taken if backups were enabled from [here](https://console.cloud.google.com/compute/snapshots?tab=snapshots).

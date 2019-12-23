@@ -5,6 +5,10 @@ provider "google" {
   zone = var.gcp_zone
 }
 
+data "google_compute_address" "calibre_server_public_ip_address" {
+  name = "calibre-server-public-ip"
+}
+
 resource "google_compute_resource_policy" "calibre_server_disk_backup_schedule" {
   count = var.backups_enabled ? 1 : 0
   name = "calibre-server-disk-backup-schedule"
@@ -46,16 +50,10 @@ data "template_file" "startup_script" {
   }
 }
 
-data "google_compute_address" "calibre_server_public_ip_address" {
-  name = "calibre-server-public-ip"
-  project = var.gcp_project_id
-  region = var.gcp_region
-}
-
 resource "google_compute_instance" "calibre_server" {
   name = "calibre-server"
   machine_type = var.machine_type
-  zone = "europe-west3-b"
+  zone = var.gcp_zone
 
   allow_stopping_for_update = var.allow_stopping_for_update
 
