@@ -12,7 +12,8 @@ This project provides the Terraform scripts to deploy a simple but full-blown Ca
   Go to [Google Cloud Console](https://console.cloud.google.com) 
   and create one with your Google account if you don't have one. 
   
-  **Take note of your project ID**, you'll need it on the installation.
+  **Take note of your project ID**, you'll need it on the installation.  
+  An example project id: `my-project-id-123`
 
 - A SSH public/private key pair. Find out how to generate them. You can find a description 
   [on this page](https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key).
