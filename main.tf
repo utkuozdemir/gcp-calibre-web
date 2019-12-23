@@ -1,12 +1,12 @@
 provider "google" {
-  credentials = file("../serviceaccount.json")
+  credentials = file("serviceaccount.json")
   project = var.gcp_project_id
   region = var.gcp_region
   zone = var.gcp_zone
 }
 
 data "google_compute_address" "calibre_server_public_ip_address" {
-  name = "calibre-server-public-ip"
+  name = var.public_ip_address_resource_name
 }
 
 resource "google_compute_resource_policy" "calibre_server_disk_backup_schedule" {
@@ -28,7 +28,7 @@ resource "google_compute_resource_policy" "calibre_server_disk_backup_schedule" 
 }
 
 resource "google_compute_disk" "calibre_server_disk" {
-  image = "ubuntu-1804-bionic-v20191113"
+  image = var.disk_image
   name = "calibre-server-disk"
   size = var.disk_size_in_gb
 }
