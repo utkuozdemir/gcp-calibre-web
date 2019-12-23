@@ -1,3 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+set -x
+
+apt-get update
+apt-get install -y docker.io docker-compose haveged libatomic1 tzdata
+
+adduser ubuntu docker
+mkdir -p /home/ubuntu/config
+mkdir -p /home/ubuntu/books
+
+cat > /home/ubuntu/calibre-web.subfolder.conf <<EOL
+location /calibre-web {
+    return 301 \$scheme://\$host/calibre-web/;
+}
+location ^~ /calibre-web/ {
+    resolver 127.0.0.11 valid=30s;
+    set \$upstream_calibre_web calibre-web;
+    proxy_pass http://\$upstream_calibre_web:8083;
+    proxy_set_header Host \$http_host;
+    proxy_set_header X-Scheme \$scheme;
+    proxy_set_header X-Script-Name /calibre-web;
+}
+EOL
+
+cat > /home/ubuntu/docker-compose.yaml <<EOL
 version: "3"
 services:
   letsencrypt:
@@ -35,3 +62,7 @@ services:
     ports:
       - 8083:8083
     restart: unless-stopped
+EOL
+
+chown -R ubuntu:ubuntu /home/ubuntu
+sudo -u ubuntu docker-compose -f /home/ubuntu/docker-compose.yaml up -d

@@ -35,15 +35,21 @@ variable "backups_enabled" {
   type = bool
 }
 
+variable "backups_schedule" {
+  type = string
+  default = "daily"
+}
+
+variable "backups_max_retention_days" {
+  type = number
+  default = 14
+}
+
 variable "disk_size_in_gb" {
   type = number
 }
 
 variable "domain_name" {
-  type = string
-}
-
-variable "ip_address" {
   type = string
 }
 

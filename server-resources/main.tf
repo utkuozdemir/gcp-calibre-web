@@ -9,9 +9,10 @@ resource "google_compute_resource_policy" "calibre_server_disk_backup_schedule" 
   count = var.backups_enabled ? 1 : 0
   name = "calibre-server-disk-backup-schedule"
   region = var.gcp_region
+
   snapshot_schedule_policy {
     retention_policy {
-      max_retention_days = 14
+      max_retention_days = var.backups_max_retention_days
     }
     schedule {
       daily_schedule {
@@ -35,6 +36,22 @@ resource "google_compute_disk_resource_policy_attachment" "calibre_server_disk_b
   zone = var.gcp_zone
 }
 
+data "template_file" "startup_script" {
+  template = file("startup-script-template.sh")
+  vars = {
+    timezone = var.timezone
+    domain_name = var.domain_name
+    admin_email = var.admin_email
+    use_test_cert = var.use_test_ssl_cert
+  }
+}
+
+data "google_compute_address" "calibre_server_public_ip_address" {
+  name = "calibre-server-public-ip"
+  project = var.gcp_project_id
+  region = var.gcp_region
+}
+
 resource "google_compute_instance" "calibre_server" {
   name = "calibre-server"
   machine_type = var.machine_type
@@ -50,7 +67,9 @@ resource "google_compute_instance" "calibre_server" {
   depends_on = [
     google_compute_disk.calibre_server_disk
   ]
+
   boot_disk {
+    auto_delete = false
     source = google_compute_disk.calibre_server_disk.name
   }
 
@@ -63,7 +82,7 @@ resource "google_compute_instance" "calibre_server" {
     network = "default"
 
     access_config {
-      nat_ip = var.ip_address
+      nat_ip = data.google_compute_address.calibre_server_public_ip_address.address
     }
   }
 
@@ -71,44 +90,5 @@ resource "google_compute_instance" "calibre_server" {
     ssh-keys = "ubuntu:${file(var.ssh_public_key_file_location)}"
   }
 
-  connection {
-    type = "ssh"
-    host = var.ip_address
-    user = "ubuntu"
-    timeout = "500s"
-    private_key = file(var.ssh_private_key_file_location)
-  }
-
-  provisioner "file" {
-    source = "./files/setup.sh"
-    destination = "/home/ubuntu/setup.sh"
-  }
-
-  provisioner "file" {
-    source = "./files/calibre-web.subfolder.conf"
-    destination = "/home/ubuntu/calibre-web.subfolder.conf"
-  }
-
-  provisioner "file" {
-    content = templatefile("templates/docker-compose.yaml", {
-      timezone = var.timezone
-      domain_name = var.domain_name
-      admin_email = var.admin_email
-      use_test_cert = var.use_test_ssl_cert
-    })
-    destination = "/home/ubuntu/docker-compose.yaml"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /home/ubuntu/setup.sh",
-      "/home/ubuntu/setup.sh"
-    ]
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "docker-compose -f /home/ubuntu/docker-compose.yaml up -d"
-    ]
-  }
+  metadata_startup_script = data.template_file.startup_script.rendered
 }
