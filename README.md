@@ -120,7 +120,13 @@ Inside the `server-resources` directory:
 
 ### Step 4: Configuring Calibre-Web application
 
-1. Go to the address on the output from the previous step on your web browser.
+1. Calibre-Web needs an initial library, which contains the `metadata.db`, to start working.  
+   Therefore we need to upload an existing library to the server.  
+   To do this, connect to the VM you created with an SFTP/SCP client as user `ubuntu` using your private key.  
+   Upload the initial library you have into the directory: `/home/ubuntu/books/`.  
+   The metadata.db file should be exactly in the following location: `/home/ubuntu/books/metadata.db`.
+
+2. Go to the address on the output from the previous step on your web browser.
    You will be greeted by the initial setup screen of Calibre.  
    Leave all settings as-is, except:  
    * Set exactly `/books` as the Calibre library location.
@@ -128,12 +134,12 @@ Inside the `server-resources` directory:
    Submit the settings.  
    ([This](https://hub.docker.com/r/linuxserver/calibre-web) is what is running on server.)
 
-2. Login to Calibre-Web with the following credentials:
+3. Login to Calibre-Web with the following credentials:
    ```
    admin
    admin123
    ```
-   After doing it, *immediately go to settings and change your password*.
+   After doing it, **immediately go to settings and change your password**.
 
 Congratulations, you have set up a secure Calibre Server.
 
@@ -143,13 +149,13 @@ Congratulations, you have set up a secure Calibre Server.
    ```shell script
    terraform destroy -var-file=my.tfvars
    ```
-   Answer "yes" to the prompt to confirm deletion.
+   Answer `yes` to the prompt to confirm deletion.
 
 2. In the `static-ip-address` directory, run:
    ```shell script
    terraform destroy -var-file=my.tfvars
    ```
-   Answer "yes" to the prompt to confirm deletion.
+   Answer `yes` to the prompt to confirm deletion.
 
 3. Delete the DNS record for Calibre-Web from your registrar.
 
