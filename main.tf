@@ -50,10 +50,6 @@ data "template_file" "startup_script" {
   }
 }
 
-data "null_data_source" "faik" {
-
-}
-
 resource "google_compute_instance" "calibre_server" {
   name = "calibre-server"
   machine_type = var.machine_type
