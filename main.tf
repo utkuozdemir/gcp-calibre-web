@@ -50,6 +50,10 @@ data "template_file" "startup_script" {
   }
 }
 
+data "null_data_source" "faik" {
+
+}
+
 resource "google_compute_instance" "calibre_server" {
   name = "calibre-server"
   machine_type = var.machine_type
@@ -88,5 +92,5 @@ resource "google_compute_instance" "calibre_server" {
     ssh-keys = "ubuntu:${file(var.ssh_public_key_file_location)}"
   }
 
-  metadata_startup_script = data.template_file.startup_script.rendered
+  metadata_startup_script = replace(data.template_file.startup_script.rendered,"\r\n" ,"\n" )
 }
